@@ -116,11 +116,32 @@ def ask_gpt4o(img_b64: str, prompt: str, api_key: str, model: str = "gpt-4o") ->
 def hover_cursor(x: int, y: int) -> None:
     pyautogui.moveTo(x, y, duration=0.1)
     print(f"🐱  Hover at ({x}, {y})")
+    show_marker(x, y)
+
+
+def show_marker(x: int, y: int, duration: float = 0.6) -> None:
+    """Display a small red circle around ``(x, y)`` for visual feedback."""
+    try:
+        import tkinter as tk
+    except Exception as exc:
+        print(f"⚠️  No Tk GUI available: {exc}")
+        return
+    radius = 15
+    root = tk.Tk()
+    root.overrideredirect(True)
+    root.attributes("-topmost", True)
+    root.geometry(f"{radius*2}x{radius*2}+{x - radius}+{y - radius}")
+    canvas = tk.Canvas(root, width=radius*2, height=radius*2, highlightthickness=0)
+    canvas.pack()
+    canvas.create_oval(2, 2, radius*2-2, radius*2-2, outline="red", width=2)
+    root.after(int(duration * 1000), root.destroy)
+    root.mainloop()
 
 
 def click_cursor(x: int, y: int) -> None:
     pyautogui.click(x, y, duration=0.1)
     print(f"🐱  Click at ({x}, {y})")
+    show_marker(x, y)
 
 
 def type_text(text: str) -> None:
