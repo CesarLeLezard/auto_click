@@ -4,6 +4,7 @@ Petit script Python qui capture l’écran et demande à GPT-4o Vision où se tr
 
 ## Utilisation
 
+
  ```bash
  python auto_click.py -t "bouton Télécharger"                 # capture auto via $OPENAI_API_KEY
  python auto_click.py -s screenshot.png -t "champ de recherche"  # utilise une image existante
@@ -39,5 +40,4 @@ Le programme cherche l'icône Firefox, effectue un double clic et laisse le
 marqueur rouge affiché pendant dix secondes pour montrer la position visée.
 
 Le script fonctionne plutôt bien mais il clique souvent juste à côté de la bonne cible. Je n’ai pas trouvé comment améliorer cela, sauf attendre un meilleur modèle.
-
 Le code complet se trouve dans [auto_click.py](auto_click.py).

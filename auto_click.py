@@ -115,6 +115,7 @@ def ask_gpt4o(img_b64: str, prompt: str, api_key: str, model: str = "gpt-4o") ->
 # ────────────────────────────────────────────────────────────────
 
 def hover_cursor(x: int, y: int) -> None:
+
     """Move the mouse to ``(x, y)``."""
     pyautogui.moveTo(x, y, duration=0.1)
     print(f"🐱  Hover at ({x}, {y})")
@@ -170,10 +171,12 @@ def main() -> None:
     parser.add_argument("--text", default="", help="Text to type afterwards (\\n supported)")
     parser.add_argument("--no-hover", action="store_true", help="Do not move the mouse (debug only)")
     parser.add_argument("--test-firefox", action="store_true", help="Test: cherche l'ic\u00f4ne Firefox et double-clique avec un marqueur 10 s")
+
     args = parser.parse_args()
 
     if not args.api_key:
         parser.error("OpenAI key missing (use -k or set $OPENAI_API_KEY)")
+
 
     if args.test_firefox:
         args.target = "ic\u00f4ne Firefox"
@@ -195,6 +198,7 @@ def main() -> None:
         sys.exit(1)
 
     print(f"✅ Coordinates: ({x}, {y})")
+
 
     # 3) actions
     if args.test_firefox:
