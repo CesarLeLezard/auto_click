@@ -7,7 +7,8 @@ Ex. :
     python auto_click.py                             # capture auto + API KEY via $OPENAI_API_KEY
     python auto_click.py -s screenshot.png           # utiliser image existante
     python auto_click.py -k sk-...                   # clé OpenAI explicite
-    python auto_click.py --no-hover                  # debug, ne pas bouger le curseur
+    python auto_click.py --no-hover -t "Zone"        # debug : pas de mouvement
+    python auto_click.py --test-firefox              # mode test Firefox
 """
 
 from __future__ import annotations
@@ -114,11 +115,33 @@ def ask_gpt4o(img_b64: str, prompt: str, api_key: str, model: str = "gpt-4o") ->
 # ────────────────────────────────────────────────────────────────
 
 def hover_cursor(x: int, y: int) -> None:
+
+    """Move the mouse to ``(x, y)``."""
     pyautogui.moveTo(x, y, duration=0.1)
     print(f"🐱  Hover at ({x}, {y})")
 
 
+def show_marker(x: int, y: int, duration: float = 0.6) -> None:
+    """Display a small red circle around ``(x, y)`` for visual feedback."""
+    try:
+        import tkinter as tk
+    except Exception as exc:
+        print(f"⚠️  No Tk GUI available: {exc}")
+        return
+    radius = 15
+    root = tk.Tk()
+    root.overrideredirect(True)
+    root.attributes("-topmost", True)
+    root.geometry(f"{radius*2}x{radius*2}+{x - radius}+{y - radius}")
+    canvas = tk.Canvas(root, width=radius*2, height=radius*2, highlightthickness=0)
+    canvas.pack()
+    canvas.create_oval(2, 2, radius*2-2, radius*2-2, outline="red", width=2)
+    root.after(int(duration * 1000), root.destroy)
+    root.mainloop()
+
+
 def click_cursor(x: int, y: int) -> None:
+    """Click once at ``(x, y)``."""
     pyautogui.click(x, y, duration=0.1)
     print(f"🐱  Click at ({x}, {y})")
 
@@ -141,16 +164,26 @@ def type_text(text: str) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="GPT-4o Vision hover+type automation.")
-    parser.add_argument("-t", "--target", required=True, help="UI element to locate (e.g. 'Download button').")
+    parser.add_argument("-t", "--target", help="UI element to locate (e.g. 'Download button').")
     parser.add_argument("-m", "--model", default="gpt-4o", help="Vision model (default: gpt-4o)")
     parser.add_argument("-k", "--api-key", default=os.getenv("OPENAI_API_KEY"), help="OpenAI key ($OPENAI_API_KEY)")
     parser.add_argument("-s", "--screenshot", type=Path, help="Use existing screenshot file instead of capturing")
     parser.add_argument("--text", default="", help="Text to type afterwards (\\n supported)")
     parser.add_argument("--no-hover", action="store_true", help="Do not move the mouse (debug only)")
+    parser.add_argument("--test-firefox", action="store_true", help="Test: cherche l'ic\u00f4ne Firefox et double-clique avec un marqueur 10 s")
+
     args = parser.parse_args()
 
     if not args.api_key:
         parser.error("OpenAI key missing (use -k or set $OPENAI_API_KEY)")
+
+
+    if args.test_firefox:
+        args.target = "ic\u00f4ne Firefox"
+        args.text = ""
+        args.no_hover = False
+    elif not args.target:
+        parser.error("--target is required unless --test-firefox is used")
 
     # 1) capture / encode
     img_b64, img_path = screenshot_to_b64(args.screenshot)
@@ -166,12 +199,18 @@ def main() -> None:
 
     print(f"✅ Coordinates: ({x}, {y})")
 
-    # 3) Hover + type
-    if not args.no_hover:
+
+    # 3) actions
+    if args.test_firefox:
         hover_cursor(x, y)
+        pyautogui.doubleClick(x, y, duration=0.1)
+        show_marker(x, y, duration=10.0)
     else:
-        click_cursor(x, y)
-    type_text(args.text)
+        if not args.no_hover:
+            hover_cursor(x, y)
+        else:
+            click_cursor(x, y)
+        type_text(args.text)
 
 
 if __name__ == "__main__":
