@@ -10,7 +10,7 @@ Petit script Python qui capture l’écran et demande à GPT-4o Vision où se tr
  python auto_click.py -s screenshot.png -t "champ de recherche"  # utilise une image existante
  python auto_click.py -k sk-... -t "bouton OK"                   # clé OpenAI explicite
  python auto_click.py --no-hover -t "Zone de texte"             # debug : ne pas bouger la souris
- python auto_click.py --test-firefox                           # teste l'ic\u00f4ne Firefox
+ python auto_click.py --test-firefox                           # teste d'ouvrir Firefox
  ```
 
 ## Exemple rapide
